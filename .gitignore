@@ -1,0 +1,20 @@
+# course config files
+*.yaml
+
+# gradle
+.gradle/
+/gradle/
+/gradlew
+/gradlew.bat
+build
+out
+
+# idea config
+.idea
+
+# stages
+/Budget Manager/Analyzer/
+/Budget Manager/Count my money/
+/Budget Manager/Make a menu/
+/Budget Manager/Memorable purchases/
+/Budget Manager/Oh the things you can buy/
