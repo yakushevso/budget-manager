@@ -1,40 +1,65 @@
 package budget.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class BudgetModel {
-    private double totalIncome;
-    private final List<Purchase> purchases = new ArrayList<>();
+    private double balance;
+    private final Map<Integer, Category> categories = new HashMap<>();
+
+    public BudgetModel() {
+        initializePurchaseList();
+    }
+
+    private void initializePurchaseList() {
+        for (Category category : Category.values()) {
+            categories.put(category.getId(), category);
+        }
+    }
 
     public void addIncome(double income) {
-        totalIncome += income;
+        balance += income;
     }
 
-    public void addPurchase(String purchase, double cost) {
-        purchases.add(new Purchase(purchase, cost));
-        totalIncome -= cost;
+    public void addPurchase(String name, double cost, int category) {
+        getPurchases(category).add(new Purchase(name, cost));
+        balance -= cost;
     }
 
-    public List<Purchase> getListOfPurchases() {
-        return purchases;
+    public String getCategoryName(int category) {
+        return categories.get(category).getName();
     }
 
-    public boolean isPurchasesEmpty() {
-        return purchases.isEmpty();
+    public List<Purchase> getPurchases(int category) {
+        return categories.get(category).getPurchases();
     }
 
-    public double getTotalCostOfPurchases() {
-        double totalCost = 0;
+    public boolean isPurchasesEmpty(int category) {
+        return getPurchases(category).isEmpty();
+    }
 
-        for (Purchase purchase : purchases) {
-            totalCost += purchase.price();
+    public boolean isCategoriesEmpty() {
+        boolean isEmpty = true;
+
+        for (Category category : Category.values()) {
+            if (!isPurchasesEmpty(category.getId())) {
+                return false;
+            }
         }
 
-        return totalCost;
+        return isEmpty;
+    }
+
+    public double getTotalCost(int category) {
+        return getPurchases(category).stream()
+                .mapToDouble(Purchase::price)
+                .sum();
     }
 
     public double getBalance() {
-        return totalIncome;
+        return balance;
+    }
+
+    public int getCategoryCount() {
+        return Category.values().length;
     }
 }
