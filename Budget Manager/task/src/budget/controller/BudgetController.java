@@ -1,8 +1,12 @@
 package budget.controller;
 
 import budget.model.BudgetModel;
+import budget.model.FileManager;
 import budget.view.BudgetView;
 import budget.view.Messages;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BudgetController {
     private final BudgetModel model;
@@ -31,6 +35,8 @@ public class BudgetController {
                 case ADD_PURCHASE -> addPurchase();
                 case SHOW_PURCHASES -> showPurchases();
                 case SHOW_BALANCE -> showBalance();
+                case SAVE -> saveToFile();
+                case LOAD -> loadFromFile();
                 case EXIT -> {
                     view.displayMessage(Messages.EXIT);
                     return;
@@ -39,6 +45,31 @@ public class BudgetController {
 
             view.displayMessage("");
         }
+    }
+
+    private void saveToFile() {
+        List<String> data = new ArrayList<>();
+
+        data.add(String.valueOf(model.getBalance()));
+        data.add(String.valueOf(model.getExpenses()));
+        data.addAll(model.getFormattedPurchases());
+
+        FileManager.save(data);
+
+        view.displayMessage(Messages.SAVED);
+    }
+
+    private void loadFromFile() {
+        List<String> data = FileManager.load();
+
+        model.addIncome(Double.parseDouble(data.get(0)) + Double.parseDouble(data.get(1)));
+
+        for (int i = 2; i < data.size(); i++) {
+            String[] line = data.get(i).split(",");
+            model.addPurchase(Integer.parseInt(line[0]), line[1], Double.parseDouble(line[2]));
+        }
+
+        view.displayMessage(Messages.LOADED);
     }
 
     private void addIncome() {
@@ -64,8 +95,7 @@ public class BudgetController {
 
     private void addPurchase() {
         while (true) {
-            int categoryCount = model.getCategoryCount();
-            int menuSize = categoryCount + 1;
+            int menuSize = model.getCategoryCount() + 1;
             int category = getNumOfCategory(Messages.PURCHASE_ADD_MENU, menuSize);
 
             if (category == menuSize) {
@@ -87,7 +117,7 @@ public class BudgetController {
                         continue;
                     }
 
-                    model.addPurchase(name, price, category);
+                    model.addPurchase(category, name, price);
                     view.displayMessage(Messages.PURCHASE_ADDED);
                     break;
                 } catch (NumberFormatException e) {
@@ -120,15 +150,14 @@ public class BudgetController {
             if (category == menuSize - 1) {
                 view.displayMessage(Messages.ALL);
 
-                double totalSum = 0;
                 for (int i = 1; i <= categoryCount; i++) {
                     if (!model.isPurchasesEmpty(i)) {
                         model.getPurchases(i).forEach(view::displayMessage);
-                        totalSum += model.getTotalCost(i);
                     }
                 }
 
-                view.displayMessage(Messages.TOTAL_SUM + String.format("%.2f", totalSum));
+                view.displayMessage(Messages.TOTAL_SUM
+                        + String.format("%.2f", model.getExpenses()));
             } else {
                 view.displayMessage(model.getCategoryName(category) + ":");
 
@@ -136,7 +165,8 @@ public class BudgetController {
                     view.displayMessage(Messages.LIST_EMPTY);
                 } else {
                     model.getPurchases(category).forEach(view::displayMessage);
-                    view.displayMessage(Messages.TOTAL_SUM + String.format("%.2f", model.getTotalCost(category)));
+                    view.displayMessage(Messages.TOTAL_SUM
+                            + String.format("%.2f", model.getCategoryExpenses(category)));
                 }
             }
 

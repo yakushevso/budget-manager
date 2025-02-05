@@ -11,12 +11,15 @@ public enum Messages {
     INVALID_COMMAND("Invalid command! Please try again:"),
     INVALID_NUMBER("Invalid number. Please enter a number:"),
     LIST_EMPTY("The Purchase list is empty"),
+    LOADED("Purchases were loaded!"),
     MENU("""
             Choose your action:
             1) Add income
             2) Add purchase
             3) Show list of purchases
             4) Balance
+            5) Save
+            6) Load
             0) Exit"""),
     PURCHASE_ADDED("Purchase was added!"),
     PURCHASE_ADD_MENU("""
@@ -34,6 +37,7 @@ public enum Messages {
             4) Other
             5) All
             6) Back"""),
+    SAVED("Purchases were saved!"),
     TOTAL_SUM("Total sum: $");
 
     private final String message;

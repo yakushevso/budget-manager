@@ -5,6 +5,8 @@ public enum Command {
     ADD_PURCHASE("2"),
     SHOW_PURCHASES("3"),
     SHOW_BALANCE("4"),
+    SAVE("5"),
+    LOAD("6"),
     EXIT("0");
 
     private final String code;
