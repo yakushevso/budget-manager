@@ -37,6 +37,7 @@ public class BudgetController {
                 case SHOW_BALANCE -> showBalance();
                 case SAVE -> saveToFile();
                 case LOAD -> loadFromFile();
+                case SORT -> sort();
                 case EXIT -> {
                     view.displayMessage(Messages.EXIT);
                     return;
@@ -47,12 +48,71 @@ public class BudgetController {
         }
     }
 
+    private void sort() {
+        while (true) {
+            int menuSize = 4;
+
+            int typeOfSort = getNumOfCategory(Messages.SORT_MENU, menuSize);
+
+            if (typeOfSort == menuSize) {
+                return;
+            }
+
+            view.displayMessage("");
+
+            switch (typeOfSort) {
+                case 1 -> sortAll();
+                case 2 -> sortByType();
+                case 3 -> sortCertainType();
+            }
+
+            view.displayMessage("");
+        }
+    }
+
+    private void sortCertainType() {
+        int category = getNumOfCategory(Messages.SORT_TYPE_MENU, 4);
+
+        view.displayMessage("");
+
+        if (model.isPurchasesEmpty(category)) {
+            view.displayMessage(Messages.LIST_EMPTY);
+        } else {
+            view.displayMessage(model.getCategoryName(category) + ":");
+
+            model.getSortedPurchases(model.getPurchases(category)).forEach(view::displayMessage);
+
+            view.displayFormattedMessage(Messages.TOTAL_SUM, model.getCategoryExpenses(category));
+        }
+    }
+
+    private void sortByType() {
+        view.displayMessage(Messages.TYPES);
+
+        model.getSortedCategories().forEach(c -> view.displayMessage(c.getKey() + " - $" + c.getValue()));
+
+        view.displayFormattedMessage(Messages.TOTAL_SUM, model.getExpenses());
+    }
+
+    private void sortAll() {
+        if (model.isCategoriesEmpty()) {
+            view.displayMessage(Messages.LIST_EMPTY);
+            return;
+        }
+
+        view.displayMessage(Messages.ALL);
+
+        model.getSortedPurchases(model.getAllPurchases()).forEach(view::displayMessage);
+
+        view.displayFormattedMessage(Messages.TOTAL_SUM, model.getExpenses());
+    }
+
     private void saveToFile() {
         List<String> data = new ArrayList<>();
 
         data.add(String.valueOf(model.getBalance()));
         data.add(String.valueOf(model.getExpenses()));
-        data.addAll(model.getFormattedPurchases());
+        data.addAll(model.getPurchasesForSave());
 
         FileManager.save(data);
 
@@ -150,14 +210,9 @@ public class BudgetController {
             if (category == menuSize - 1) {
                 view.displayMessage(Messages.ALL);
 
-                for (int i = 1; i <= categoryCount; i++) {
-                    if (!model.isPurchasesEmpty(i)) {
-                        model.getPurchases(i).forEach(view::displayMessage);
-                    }
-                }
+                model.getAllPurchases().forEach(view::displayMessage);
 
-                view.displayMessage(Messages.TOTAL_SUM
-                        + String.format("%.2f", model.getExpenses()));
+                view.displayFormattedMessage(Messages.TOTAL_SUM, model.getExpenses());
             } else {
                 view.displayMessage(model.getCategoryName(category) + ":");
 
@@ -165,8 +220,7 @@ public class BudgetController {
                     view.displayMessage(Messages.LIST_EMPTY);
                 } else {
                     model.getPurchases(category).forEach(view::displayMessage);
-                    view.displayMessage(Messages.TOTAL_SUM
-                            + String.format("%.2f", model.getCategoryExpenses(category)));
+                    view.displayFormattedMessage(Messages.TOTAL_SUM, model.getCategoryExpenses(category));
                 }
             }
 
@@ -192,6 +246,6 @@ public class BudgetController {
     }
 
     private void showBalance() {
-        view.displayMessage(Messages.BALANCE + String.format("%.2f", model.getBalance()));
+        view.displayFormattedMessage(Messages.BALANCE, model.getBalance());
     }
 }

@@ -20,6 +20,7 @@ public enum Messages {
             4) Balance
             5) Save
             6) Load
+            7) Analyze (Sort)
             0) Exit"""),
     PURCHASE_ADDED("Purchase was added!"),
     PURCHASE_ADD_MENU("""
@@ -38,7 +39,20 @@ public enum Messages {
             5) All
             6) Back"""),
     SAVED("Purchases were saved!"),
-    TOTAL_SUM("Total sum: $");
+    SORT_MENU("""
+            How do you want to sort?
+            1) Sort all purchases
+            2) Sort by type
+            3) Sort certain type
+            4) Back"""),
+    SORT_TYPE_MENU("""
+            Choose the type of purchase
+            1) Food
+            2) Clothes
+            3) Entertainment
+            4) Other"""),
+    TOTAL_SUM("Total sum: $"),
+    TYPES("Types:");
 
     private final String message;
 

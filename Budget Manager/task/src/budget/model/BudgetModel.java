@@ -12,9 +12,7 @@ public class BudgetModel {
     }
 
     private void initializePurchaseList() {
-        for (Category category : Category.values()) {
-            purchases.put(category, new ArrayList<>());
-        }
+        Arrays.stream(Category.values()).forEach(category -> purchases.put(category, new ArrayList<>()));
     }
 
     public double getBalance() {
@@ -22,7 +20,7 @@ public class BudgetModel {
     }
 
     public double getExpenses() {
-        return this.expenses;
+        return expenses;
     }
 
     public void addIncome(double income) {
@@ -37,6 +35,10 @@ public class BudgetModel {
 
     public List<Purchase> getPurchases(int category) {
         return purchases.get(Category.fromId(category));
+    }
+
+    public List<Purchase> getAllPurchases() {
+        return purchases.values().stream().flatMap(Collection::stream).toList();
     }
 
     public boolean isPurchasesEmpty(int category) {
@@ -56,20 +58,21 @@ public class BudgetModel {
     }
 
     public double getCategoryExpenses(int category) {
-        return getPurchases(category).stream()
-                .mapToDouble(Purchase::price)
-                .sum();
+        return getPurchases(category).stream().mapToDouble(Purchase::price).sum();
     }
 
-    public List<String> getFormattedPurchases() {
-        List<String> list = new ArrayList<>();
+    public List<String> getPurchasesForSave() {
+        return getAllPurchases().stream().map(Purchase::toSave).toList();
+    }
 
-        for (List<Purchase> purchaseList : purchases.values()) {
-            for (Purchase purchase : purchaseList) {
-                list.add(purchase.category() + "," + purchase.name() + "," + purchase.price());
-            }
-        }
+    public List<Purchase> getSortedPurchases(List<Purchase> list) {
+        return list.stream().sorted(Comparator.comparingDouble(Purchase::price).reversed()).toList();
+    }
 
-        return list;
+    public List<Map.Entry<String, Double>> getSortedCategories() {
+        return purchases.keySet().stream()
+                .map(list -> Map.entry(list.getName(), getCategoryExpenses(list.ordinal() + 1)))
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .toList();
     }
 }

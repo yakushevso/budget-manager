@@ -7,6 +7,7 @@ public enum Command {
     SHOW_BALANCE("4"),
     SAVE("5"),
     LOAD("6"),
+    SORT("7"),
     EXIT("0");
 
     private final String code;
